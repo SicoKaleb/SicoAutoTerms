@@ -1,0 +1,60 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+// The gametests are a mod of their own (sicoautoterms-gametest) in their own source set, so nothing of them
+// reaches the release jar. Declared before the loom block because the clientGametest run reads it.
+sourceSets {
+    gametest {
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+    }
+}
+
+loom {
+    runs {
+        clientGametest {
+            client()
+            name = "Client Gametest"
+            source sourceSets.gametest
+            // The client harness only runs with this property; without it the game sits on the title screen.
+            vmArg "-Dfabric.client.gametest"
+            vmArg "-Dfabric.client.gametest.modid=sicoautoterms-gametest"
+            runDir "build/gametest"
+        }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+}
+
+processResources {
+    inputs.property "version", project.version
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+// Minecraft 26.3 is built for Java 25 (class file 69); the installed JDK is 26, which cross-compiles.
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 25
+    it.options.encoding = "UTF-8"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(26)
+    }
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}

@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.sico.autoterms.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "MixinAbstractContainerScreen",
+    "MixinConnection",
+    "MixinGui",
+    "MixinHud",
+    "MixinKeyboardInput",
+    "MixinMinecraft",
+    "MixinMouseHandler"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
